@@ -7,6 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(OpenSSL REQUIRED)
 
 include_directories(${OPENSSL_INCLUDE_DIR}) 
-add_executable(cryptor main.cpp Crypt.cpp Aes256.cpp )
+add_executable(cryptor main.cpp Crypt.cpp Aes256.cpp Scanner.cpp )
 
 target_link_libraries(cryptor ${OPENSSL_LIBRARIES})

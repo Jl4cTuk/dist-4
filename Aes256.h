@@ -6,7 +6,7 @@ using namespace std;
 
 class Aes256 {
 public:
-    static bool encryptFile(const string& inFile, const string& outFile, const string& key);
-    static bool decryptFile(const string& inFile, const string& outFile, const string& key);
+    static bool encryptFile(const string& in, const string& pass);
+    static bool decryptFile(const string& in, const string& pass);
 };
 #endif // AES256_H

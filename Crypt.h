@@ -15,7 +15,7 @@ private:
     Crypt() = default; 
     Crypt(const Crypt&) = delete; 
     Crypt& operator=(const Crypt&) = delete; 
-    void createFile(const string& filePath, bool encrypt); 
+    void createFile(const string& filePath, string encrypt); 
     
     string pass; 
 };

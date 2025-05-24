@@ -1,5 +1,6 @@
 #include "Crypt.h" 
 #include "Aes256.h" 
+#include "Scanner.h"
 #include <iostream> 
 #include <cstdio>
 
@@ -12,28 +13,31 @@ Crypt& Crypt::getInstance() {
 
 void Crypt::setPassword(const string& password) { 
     pass = password; 
-    cout << "setKey: " << pass << endl;
 }
 
-void Crypt::encrypt(const string& path) { 
-    cout << "encrypt: " << path << endl;
-    createFile(path, true); 
+void Crypt::encrypt(const std::string& path) {
+    std::vector<std::string> files = Scanner::scan(path);
+    for (const std::string& file : files) {
+        createFile(file, "encrypt");
+    }
 }
 
 void Crypt::decrypt(const string& path) { 
-    cout << "decrypt: " << path << endl;
-    createFile(path, true); 
+    std::vector<std::string> files = Scanner::scan(path);
+    for (const std::string& file : files) {
+        createFile(file, "decrypt");
+    }
 }
 
-void Crypt::createFile(const string& path, bool opt) { 
+void Crypt::createFile(const string& path, string opt) { 
     bool success; 
     
-    if (opt) { 
+    if (opt == "encrypt") { 
         cout << "encrypting: " << path << endl; 
-        success = Aes256::encryptFile(path, path, pass); 
+        success = Aes256::encryptFile(path, pass);
     } 
-    else { 
+    else if (opt == "decrypt") { 
         cout << "decrypting: " << path << endl; 
-        success = Aes256::decryptFile(path, path, pass); 
+        success = Aes256::encryptFile(path, pass); 
     } 
 }
