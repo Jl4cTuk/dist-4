@@ -42,7 +42,6 @@ void Scanner::recurse(const string& path, vector<string>& files) {
 }
 
 vector<string> Scanner::scan(const string& rootPath) {
-    cout << "scan: " << rootPath << endl;
     vector<string> resultFiles;
 
     struct stat rootStat;
