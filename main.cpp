@@ -1,3 +1,4 @@
+#include "Crypt.h"
 #include <openssl/evp.h> 
 #include <openssl/err.h> 
 #include <iostream> 
@@ -6,29 +7,9 @@
 
 using namespace std;
 
-class Crypt {
-public:
-    static Crypt& getInstance() {
-        static Crypt instance;
-        return instance;
-    }
-
-    void setKey(const string& key) {
-        cout << "setKey(): " << key << endl;
-    }
-
-    void encrypt(const string& path) {
-        cout << "encrypt(): " << path << endl;
-    }
-
-    void decrypt(const string& path) {
-        cout << "decrypt(): " << path << endl;
-    }
-};
-
 bool processOption(const string& option, const string& dir, const string& password) {
     Crypt& crypto = Crypt::getInstance();
-    crypto.setKey(password);
+    crypto.setPassword(password);
 
     if (option == "encrypt") {
         crypto.encrypt(dir);
