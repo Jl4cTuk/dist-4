@@ -38,6 +38,6 @@ void Crypt::createFile(const string& path, string opt) {
     } 
     else if (opt == "decrypt") { 
         cout << "decrypting: " << path << endl; 
-        success = Aes256::encryptFile(path, pass); 
+        success = Aes256::decryptFile(path, pass); 
     } 
 }

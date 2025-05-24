@@ -1,31 +1,64 @@
 #include "Aes256.h"
 #include <openssl/aes.h>
+#include <openssl/sha.h>
 #include <fstream>
 #include <vector>
-#include <algorithm>
-#include <cstring>
-#include <iostream> 
+#include <string>
 
 using namespace std;
 
-bool Aes256::encryptFile(const string& in, const string& pass) {
-    ifstream fin(in, ios::binary);
-    if (!fin || pass.empty()) return false;
+static bool transformFile(const string& path, const string& pass, string encryptMode) {
+    ifstream fin(path, ios::binary);
+    if (!fin) return false;
 
-    string data((istreambuf_iterator<char>(fin)), istreambuf_iterator<char>());
+    vector<unsigned char> buffer((istreambuf_iterator<char>(fin)), {});
     fin.close();
 
-    for (size_t i = 0; i < data.size(); ++i)
-        data[i] ^= pass[i % pass.size()];
+    if (encryptMode == "encrypt") {
+        int pad = AES_BLOCK_SIZE - (buffer.size() % AES_BLOCK_SIZE);
+        buffer.insert(buffer.end(), pad, pad);
+    } else {
+        if (buffer.size() % AES_BLOCK_SIZE != 0) return false;
+    }
 
-    ofstream fout(in, ios::binary | ios::trunc);
+    unsigned char key[32];
+    SHA256(reinterpret_cast<const unsigned char*>(pass.data()), pass.size(), key);
+
+    AES_KEY aesKey;
+    if (encryptMode == "encrypt") {
+        if (AES_set_encrypt_key(key, 256, &aesKey) != 0) return false;
+    } else {
+        if (AES_set_decrypt_key(key, 256, &aesKey) != 0) return false;
+    }
+
+    unsigned char iv[AES_BLOCK_SIZE] = {0};
+    vector<unsigned char> out(buffer.size());
+
+    AES_cbc_encrypt(
+        buffer.data(),
+        out.data(),
+        buffer.size(),
+        &aesKey,
+        iv,
+        encryptMode == "encrypt" ? AES_ENCRYPT : AES_DECRYPT
+    );
+
+    if (encryptMode == "decrypt") {
+        int pad = out.back();
+        if (pad <= 0 || pad > AES_BLOCK_SIZE) return false;
+        out.resize(out.size() - pad);
+    }
+
+    ofstream fout(path, ios::binary | ios::trunc);
     if (!fout) return false;
-    fout.write(data.data(), data.size());
-    fout.close();
-
+    fout.write(reinterpret_cast<char*>(out.data()), out.size());
     return true;
 }
 
-bool Aes256::decryptFile(const string& in, const string& pass) {
-    return true;
+bool Aes256::encryptFile(const string& path, const string& pass) {
+    return transformFile(path, pass, "encrypt");
+}
+
+bool Aes256::decryptFile(const string& path, const string& pass) {
+    return transformFile(path, pass, "decrypt");
 }
